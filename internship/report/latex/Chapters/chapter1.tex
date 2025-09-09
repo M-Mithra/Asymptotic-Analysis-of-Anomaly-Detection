@@ -1,0 +1,45 @@
+%Introduction
+\chapter{Introduction}
+
+\section{Problem Overview}
+
+We study the problem of identifying outlier sequences from a group of data streams. Each stream gives i.i.d. samples over time. All but few streams follow the same unknown distribution, while one or few streams (outliers) follows a different unknown distribution. The challenge is to detect those as early as possible, with high accuracy, and without knowing any distribution in advance.
+
+We focus on the \textit{universal, nonparametric, and sequential} setting:
+\begin{itemize}
+    \item \textbf{Universal}: No assumptions about the actual distributions.
+    \item \textbf{Nonparametric}: Detection relies solely on observed data
+    \item \textbf{Sequential}: Decisions are made as data arrives over time.
+\end{itemize}
+
+\section{Motivation}
+
+In real-world systems, distributions of data are often unknown or can change over time. Fixed-sample (batch) methods are not suitable for applications requiring fast or online decisions. A test that is both sequential and nonparametric is more practical and flexible. Also, existing methods may perform well only under strong assumptions. Our goal is to study tests that work universally and still give good performance in terms of speed and accuracy. This motivates the use of kernel-based methods like MMD$^2$ and error exponent analysis.
+
+\section{Applications and Broader Impact}
+
+This problem appears in many applications:
+\begin{itemize}
+    \item \textbf{Cybersecurity}: Detecting an intruder among multiple network flows.
+    \item \textbf{Sensor networks}: Identifying faulty or noisy sensors.
+    \item \textbf{Healthcare}: Finding abnormal patient signals from wearable devices.
+    \item \textbf{Quality control}: Spotting defective machines in production lines.
+\end{itemize}
+
+The broader impact includes building efficient and real-time systems for monitoring and detection without needing full knowledge of the system model.
+
+\section{Current Experiments and Evaluation Metrics}
+
+We simulate the sequential anomaly detection test (NP-SEQ) using synthetic data. Each stream is generated under either the nominal or outlier distribution. Samples are observed over time, and the test decides when to stop and which stream is the outlier.
+
+The performance is evaluated using:
+\begin{itemize}
+    \item \textbf{Misidentification probability} $\mathbb{P}_\mathcal{I}[\delta \neq \mathcal{I}]$
+    \item \textbf{False alarm probability} $\mathbb{P}_0[\delta \neq \emptyset]$
+    \item \textbf{Stopping time} $\tau$
+    \item \textbf{Error exponent}: rate of decay of error with time or number of samples
+\end{itemize}
+
+We also study how test parameters (like $\alpha$, $C$, kernel choice) affect performance.
+
+

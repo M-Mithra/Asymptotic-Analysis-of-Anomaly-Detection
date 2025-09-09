@@ -1,0 +1,73 @@
+\chapter{Literature Review}
+
+\section{Overview of Outlier Detection}
+Outlier detection aims to identify data sequences that deviate from the majority population. In the classical setting, all but a few streams are generated from an unknown nominal distribution $p$, while anomalous streams follow a different unknown distribution $q$, with $p \neq q$. The challenge lies in developing distribution-free tests that reliably distinguish outliers without prior knowledge of $p$ or $q$. Applications include sensor fault detection, cyber-security, and health monitoring.
+
+\section{Universal Hypothesis Testing Framework}
+Universal hypothesis testing focuses on statistical tests that are effective without prior knowledge of the underlying data distributions. The goal is to identify anomalous data streams from a group of otherwise homogeneous streams. A key metric for a test's performance is the \textbf{maximal error probability}, which measures the worst-case probability of misidentifying an anomaly.
+
+\subsection{Generalized Likelihood (GL)}
+The Generalized Likelihood (GL) test is a method for outlier detection in a universal, nonparametric setting where the distributions of normal and anomalous data are unknown. This approach identifies the most likely anomalous stream by maximizing a generalized likelihood function. This is equivalent to a more intuitive test based on measuring the distance between the empirical distributions of the data streams.
+
+The GL test can be expressed as minimizing a sum of distances between the empirical distributions. Specifically, when neither the nominal nor the anomalous distribution is known, the test identifies the outlier by:
+\[
+\delta(y^{Mn}) = \underset{i=1,\dots,M}{\operatorname{argmin}} \sum_{j \neq i} D\left(\gamma_j \parallel \frac{\sum_{k \neq i} \gamma_k}{M-1}\right). \quad (1)
+\]
+This formulation effectively identifies the stream that is most dissimilar to the collective group of all other streams.
+
+\subsection{Error Exponents in Hypothesis Testing}
+The \textbf{error exponent} characterizes the exponential rate at which the probability of error decreases as the sample size increases. Formally, for a maximal error probability $P_{\max}(n)$ with $n$ samples, the error exponent is defined as:
+\[
+E = - \lim_{n \to \infty} \frac{1}{n} \log P_{\max}(n). \quad (2)
+\]
+A higher error exponent means the test is more powerful and reliable, as the error probability decays faster. A test is considered \textbf{universally exponentially consistent} if its error exponent remains positive regardless of the underlying data distributions, ensuring its effectiveness in a wide range of scenarios without prior knowledge.
+
+\subsection{Observations on Optimal Error Exponents}
+From our analysis of the literature, we've observed that the optimal error exponent for the maximal error probability is characterized by the Bhattacharyya distance.
+
+\textbf{Bhattacharyya distance} ($B(\mu, \pi)$) is a measure of the similarity between two discrete or continuous probability distributions. It is closely related to the Bhattacharyya coefficient, and for probability distributions $\mu$ and $\pi$, it is defined as:
+\[
+B(\mu, \pi) = - \ln \left( \sum_{x} \sqrt{\mu(x) \pi(x)} \right).
+\]
+The distance ranges from 0 to infinity, where 0 indicates identical distributions and larger values indicate greater divergence. In this context, it quantifies how different the nominal distribution is from the anomalous one.
+
+Based on the research, we found that when both the nominal and anomalous distributions are known, the optimal exponent is equal to $2B(\mu, \pi)$. This result is also achievable by the GL test when only the anomalous distribution is known. Furthermore, it is interesting to note that even when only the mean of the nominal distribution is known, one can still achieve this optimal exponent using a different test.
+
+However, a key observation from the papers is that it is not possible to design a single test that universally achieves this optimal error exponent when neither distribution is known. This suggests that a completely universal test must accept a lower performance ceiling, which is an important consideration for designing robust, real-world anomaly detection systems.
+
+
+\section{Kernel Methods; Maximum Mean Discrepancy}
+Kernel methods provide a way to measure distributional differences without explicit density estimation. The Maximum Mean Discrepancy (MMD) between two distributions $p$ and $q$ is defined as:
+\[
+\text{MMD}^2(p,q) = \mathbb{E}_{x,x' \sim p}[k(x,x')] + \mathbb{E}_{y,y' \sim q}[k(y,y')] - 2 \, \mathbb{E}_{x \sim p, y \sim q}[k(x,y)], \quad (10)
+\]
+where $k(\cdot,\cdot)$ is a positive definite kernel (e.g., Gaussian kernel).
+
+Given finite samples $X_i^n = \{x_{i1}, \dots, x_{in}\}$ and $X_j^n$, the unbiased empirical estimator is:
+\[
+M_u^2(i,j,n) = \frac{1}{n(n-1)} \sum_{l \neq m} h(z_l,z_m), \quad (11)
+\]
+where $z_l = (x_{il},x_{jl})$ and $h(z_l,z_m) = k(x_{il},x_{im}) + k(x_{jl},x_{jm}) - k(x_{il},x_{jm}) - k(x_{im},x_{jl})$.
+
+\section{Sequential Nonparametric Outlier Detection}
+This section introduces the problem of detecting anomalous data streams in a sequential setting, as described in a relevant research paper \cite{sreenivasan2021sequential}. This approach builds upon the fixed-sample-size and generalized likelihood frameworks previously discussed.
+
+\subsection{Problem Formulation}
+The authors of \cite{sreenivasan2021sequential} address the challenge of detecting anomalous data streams from a finite set of $S$ streams. The key assumption is that a small number, $L$, of these streams are anomalies, originating from an unknown distribution $q$, while the remaining $S-L$ streams follow an unknown nominal distribution $p$. The distributions $p$ and $q$ are distinct, but no further information about them is available. The paper focuses on two specific cases: when there is \textbf{exactly one anomaly} ($L=1$), and when there are \textbf{at most $A$ anomalies} ($0 \leq L \leq A < S/2$).
+
+\subsection{The Proposed NP-SEQ Test}
+A \textbf{universal, distribution-free sequential test} called \textbf{NP-SEQ} is proposed in \cite{sreenivasan2021sequential}. This test is designed to make a decision at each time step as new samples arrive, leveraging the \textbf{Maximum Mean Discrepancy (MMD)} as its core decision statistic.
+
+The test statistic, a \textbf{max-min MMD distance} ($\Gamma_n$), is a crucial component. At each time step $n$, a candidate anomalous subset $\hat{I}_n$ is identified by finding the group of streams that maximizes the minimum MMD distance between themselves and the rest of the streams:
+\[
+\hat{I}_n = \underset{A \in S_A}{\operatorname{argmax}} \, \underset{i \in A}{\operatorname{min}} \, \underset{j \in S \setminus A}{\operatorname{min}} \, M_u^2(i,j,n). \quad (3)
+\]
+Here, $M_u^2(i,j,n)$ is the unbiased empirical estimator of the squared MMD between stream $i$ and stream $j$. The test statistic is then defined as the max-min distance for the chosen subset:
+\[
+\Gamma_n = \underset{i \in \hat{I}_n}{\operatorname{min}} \, \underset{j \in S \setminus \hat{I}_n}{\operatorname{min}} \, M_u^2(i,j,n). \quad (4)
+\]
+The sequential test stops and declares a decision when this statistic exceeds a time-varying threshold, $T_n = C/n^{\alpha}$. The parameters \textbf{$C$} and \textbf{$\alpha$} are critical. $C$ is a constant that controls the test's sensitivity and the tradeoff between stopping time and error probability; a larger $C$ generally leads to a lower error but a longer stopping time. The exponent \textbf{$\alpha$} dictates how quickly the threshold decays over time.
+
+\subsection{Performance Guarantees and Consistency}
+The paper provides significant theoretical guarantees for the proposed test. The NP-SEQ test is proven to be \textbf{universally consistent}, meaning the probability of error goes to zero as the confidence parameter $C$ increases, ensuring the test is reliable for any distinct pair of distributions $p$ and $q$. This property is a key advantage of the test's nonparametric approach.
+

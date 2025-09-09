@@ -1,0 +1,297 @@
+\chapter{Related Works}
+
+\section{Implementation of Sequential Test \cite{sreenivasan2021sequential}}
+This section outlines the logical structure of the implemented simulations for the sequential nonparametric anomaly detection tests. The core algorithms are designed to evaluate the performance of different distribution distance metrics and test scenarios.
+
+\subsection{MMD Computation}
+The implemented MMD computation calculates the unbiased empirical squared Maximum Mean Discrepancy between two finite data streams, which serve as empirical distributions. The logic relies on a Radial Basis Function (RBF) kernel to measure pairwise distances within and between the two data sets, with the final MMD value serving as a measure of their dissimilarity.
+\begin{verbatim}
+Function MMD_COMPUTATION(Data_X, Data_Y, Sigma):
+  n = number of samples in Data_X
+  m = number of samples in Data_Y
+  
+  // Calculate kernel matrices
+  Kernel_XX = exp(-pairwise_distance(Data_X, Data_X)^2 / (2 * Sigma^2))
+  Kernel_YY = exp(-pairwise_distance(Data_Y, Data_Y)^2 / (2 * Sigma^2))
+  Kernel_XY = exp(-pairwise_distance(Data_X, Data_Y)^2 / (2 * Sigma^2))
+
+
+  
+  // Exclude diagonal elements for unbiased estimation
+  Set diagonal of Kernel_XX to 0
+  Set diagonal of Kernel_YY to 0
+  
+  // Compute MMD^2 value
+  MMD_squared = (sum(Kernel_XX) / (n * (n-1))) +
+                (sum(Kernel_YY) / (m * (m-1))) -
+                (2 * sum(Kernel_XY) / (n * m))
+  
+  Return MMD_squared
+\end{verbatim}
+
+\subsection{KL Divergence Computation}
+In addition to MMD, a test based on Kullback-Leibler (KL) Divergence was implemented for comparative analysis. The logic computes the KL divergence between two data streams by first estimating their probability distributions from histograms. This provides an alternative nonparametric metric to assess the difference between the streams.
+\begin{verbatim}
+Function KL_DIVERGENCE_COMPUTATION(Data_X, Data_Y, Bins):
+  // Estimate probability distributions from histograms
+  px = histogram(Data_X, Bins, density=True)
+  py = histogram(Data_Y, Bins, density=True)
+  
+  // Add small constant to avoid log(0)
+  px = px + 1e-10
+  py = py + 1e-10
+  
+  // Compute KL divergence: sum(px * log(px / py))
+  KL_value = sum(px * log(px / py))
+  
+  Return KL_value
+\end{verbatim}
+
+\subsection{Sequential Anomaly Detection Test (NP-SEQ)}
+The central logic of the NP-SEQ test operates sequentially. At each time step, one new sample is collected from each of the $S$ data streams. The test then computes a distance metric (either MMD or KL Divergence) for each stream against the combined set of all other streams. The stream with the largest distance is identified as the candidate anomaly. The test continues until this largest distance value exceeds a decaying threshold, at which point a final decision is made and the stopping time is recorded.
+\begin{verbatim}
+Function NP_SEQ_TEST(Alpha, C, Metric_Type, Anomaly_Mean, ...):
+  For each simulation trial:
+    Initialize empty streams and set anomaly index
+    For n from 2 to Max_Steps:
+      Collect one sample from each stream
+      For each stream i:
+        Combine all other streams into 'Others'
+        If Metric_Type is MMD:
+          Metric_Value[i] = MMD_COMPUTATION(Stream[i], Others, ...)
+        Else if Metric_Type is KL:
+          Metric_Value[i] = KL_DIVERGENCE_COMPUTATION(Stream[i], Others, ...)
+      
+      Candidate_Anomaly = stream with max Metric_Value
+      Threshold = C / (n ^ Alpha)
+      
+      If Metric_Value[Candidate_Anomaly] > Threshold:
+        Log stopping time n
+        Log error (if Candidate_Anomaly is incorrect)
+        Break inner loop
+    
+    If loop completes without stopping:
+      Log max_steps as stopping time and record an error
+  
+  Calculate average stopping time and error probability
+\end{verbatim}
+
+\subsection{Simulating Different Scenarios}
+To evaluate the test's robustness, the core NP-SEQ logic was applied to various simulation settings.
+\subsubsection{Varying Mean}
+The NP-SEQ test is run with different mean values for the anomalous distribution. This logic tests how the test's efficiency and accuracy change as the separation between the anomalous and typical distributions increases. The simulation iterates through a predefined list of mean values and records performance metrics for each.
+
+\subsubsection{Misidentification for Multiple Anomalies}
+The test was extended to a scenario with a known number of multiple anomalies. The logic was adapted to identify a candidate set of anomalies (the top $A$ streams with the largest distance values) and measure the probability of misidentification—that is, whether the identified set of anomalies correctly matches the true set.
+
+\subsubsection{Non-Gaussian Distributions}
+To demonstrate the test's universality, a simulation was performed using a uniform distribution for both typical and anomalous streams. This confirms that the nonparametric approach is not limited to Gaussian data. The sample generation function is modified to produce uniform data, while the core test logic remains the same.
+
+\subsubsection{Testing the Decay Rate ($\alpha$)}
+In addition to the scenarios above, we conducted simulations with a range of $\alpha$ values beyond those noted in the original paper. This was done to empirically observe the impact of the threshold's decay rate on test performance. The results provide insight into how the choice of $\alpha$ influences the trade-off between the test's efficiency (expected stopping time) and its accuracy (error probability).
+
+\section{Simulation Results}
+
+\subsection{Gaussian Distribution Implementation Results}
+The following figures present the results of the NP-SEQ test for detecting an anomalous stream from a Gaussian distribution. The visualizations compare the test's performance across various parameter settings.
+
+\begin{figure}[h!]
+    \centering
+    % First row of two plots
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Plots/Gaussian/1.png}
+        \label{fig:mmd_gauss_1}
+    \end{minipage}\hspace{0.05\textwidth} % Horizontal space between images
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Plots/Gaussian/2.png}
+        \label{fig:mmd_gauss_2}
+    \end{minipage}
+    
+    % Vertical space between rows
+    \vspace{0.5cm}
+
+    % Second row of two plots
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Plots/Gaussian/3.png}
+        \label{fig:mmd_gauss_3}
+    \end{minipage}\hspace{0.05\textwidth} % Horizontal space between images
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Plots/Gaussian/4.png}
+        \label{fig:mmd_gauss_4}
+    \end{minipage}
+    
+    % Common caption for all images
+    \caption{MMD comparison plots for Gaussian distributions with varying parameters.}
+    \label{fig:mmd_gaussian_results}
+\end{figure}
+
+\begin{itemize}
+    \item The plots show a clear trade-off between the expected stopping time ($\mathbb{E}[N]$) and the maximal error probability ($P_{\max}$). To achieve a lower error probability, the test requires more samples, leading to a higher $\mathbb{E}[N]$.
+    \item As the confidence parameter, $C$, increases, the threshold for the test also increases, resulting in a higher observed expected stopping time, $\mathbb{E}[N]$.
+\end{itemize}
+
+\subsection{Gaussian Distribution with Multiple Means}
+This section presents the results of the NP-SEQ test when the anomalous stream's mean is varied. The typical streams are from a standard normal distribution, while the anomalous stream's mean is shifted to evaluate how the degree of separation between the distributions affects the test's performance.
+
+\begin{figure}[h!]
+    \centering
+    % First row of two plots
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Plots/MulMeans/1.png}
+    \end{minipage}\hspace{0.05\textwidth} % Horizontal space between images
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Plots/MulMeans/2.png}
+    \end{minipage}
+    
+    % Vertical space between rows
+    \vspace{0.5cm}
+
+    % Second row of three plots
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Plots/MulMeans/3.png}
+    \end{minipage}\hspace{0.03\textwidth} % Horizontal space between images
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Plots/MulMeans/4.png}
+    \end{minipage}\hspace{0.03\textwidth} % Horizontal space between images
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Report-template/Plots/MulMeans/5.png}
+    \end{minipage}
+
+    % Common caption for all images
+    \caption{MMD performance plots for different anomalous distribution means.}
+    \label{fig:mmd_multi_means}
+\end{figure}
+
+\begin{itemize}
+    \item As the mean of the anomalous distribution increases, the expected stopping time ($\mathbb{E}[N]$) of the test decreases. This is because a larger mean difference leads to a greater separation between the distributions, making the anomaly easier to detect with fewer samples.
+    \item This observation confirms the intuition that MMD-based tests are more efficient at detecting more pronounced anomalies. The test requires fewer samples to cross the detection threshold when the difference between the typical and anomalous distributions is more significant.
+\end{itemize}
+
+\subsection{KL Divergence Implementation Results}
+This section presents the results of the sequential test using Kullback-Leibler (KL) Divergence as the primary metric. The simulations evaluate the test's performance with a single anomaly and, in a separate case, with varying anomalous distribution means, for comparison against the MMD-based approach.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Plots/KL/1.png}
+    \caption{KL Divergence performance plot showing the relationship between expected stopping time and error probability for various parameter settings.}
+    \label{fig:kl_divergence_results}
+\end{figure}
+
+\begin{itemize}
+    \item The simulation results using KL Divergence show a behavior similar to that observed with the MMD metric, confirming the accuracy of the sequential test logic with a different nonparametric metric.
+    \item As the mean of the anomalous distribution increases, the expected stopping time ($\mathbb{E}[N]$) of the test decreases. This confirms that the test is more efficient at detecting anomalies that are more pronounced or "farther away" from the typical distribution.
+\end{itemize}
+
+\vspace{1\baselineskip}
+
+\subsection{Misidentification for Multiple Anomalies}
+This section presents the simulation results for the misidentification test, where the test's ability to correctly identify a known number of multiple anomalies is evaluated. The test was run with a fixed $\alpha = 0.5$ and an anomalous mean of $1.2$. The following figures compare the performance for the one-anomaly and two-anomaly cases.
+
+\begin{figure}[h!]
+    \centering
+    % First row of two plots
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Plots/MisIdentification/1.png}
+    \end{minipage}\hspace{0.05\textwidth} % Horizontal space between images
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Plots/MisIdentification/2.png}
+    \end{minipage}
+    \caption{Misidentification vs. Expected Stopping Time for the one- and two-anomaly cases.}
+    \label{fig:misidentification_results}
+\end{figure}
+
+\begin{itemize}
+    \item The results show that for a given expected stopping time ($\mathbb{E}[N]$), the probability of misidentification for the two-anomaly case is higher compared to the one-anomaly case.
+    \item This indicates that detecting two anomalies simultaneously is more challenging than detecting a single anomaly. The increased complexity of identifying the correct set of outliers requires a more conservative threshold or more samples to achieve a low error rate, leading to a higher $\mathbb{E}[N]$ for the two-anomaly case.
+\end{itemize}
+
+\subsection{Uniform Distribution Implementation Results}
+To validate the "universal" and nonparametric nature of the NP-SEQ test, further simulations were conducted using non-Gaussian data. For this section, the typical streams were drawn from a standard uniform distribution, $p = \mathcal{U}(0, 1)$, while the anomalous stream was drawn from a shifted uniform distribution, $q = \mathcal{U}(\mu, \mu + 1)$. This setup tests the algorithm's performance on distributions without a central tendency and evaluates how the degree of separation (controlled by $\mu$) impacts detection efficiency.
+
+\begin{figure}[h!]
+    \centering
+    % First row of two plots
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Plots/Uniform/2.png}
+        \label{fig:uni_mean_comp_alpha1}
+    \end{minipage}\hfill % Horizontal space between images
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Plots/Uniform/1.png}
+        \label{fig:uni_mean_comp_alpha05}
+    \end{minipage}
+    
+    \vspace{0.5cm} % Vertical space between rows
+
+    % Second row of two plots
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Plots/Uniform/3.png}
+        \label{fig:uni_alpha_comp_mean05}
+    \end{minipage}\hfill % Horizontal space between images
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Plots/Uniform/4.png}
+        \label{fig:uni_alpha_comp_mean1}
+    \end{minipage}
+    
+    % Common caption for all images
+    \caption{MMD-NP-SEQ performance on uniform distributions for varying parameters.}
+    \label{fig:mmd_uniform_results}
+\end{figure}
+
+\begin{itemize}
+    \item The plots confirm the test's effectiveness on non-Gaussian data, demonstrating its nonparametric utility. The observed trends are consistent with the results from the Gaussian simulations.
+    
+    \item Increasing the anomalous mean from $\mu=0.5$ to $\mu=1.0$ is observed to significantly reduce the expected stopping time, $\mathbb{E}[N]$. More distinct anomalies are detected faster.
+    
+    \item A threshold decay rate of $\alpha=1.0$ consistently results in a lower expected stopping time for a given error probability when compared to $\alpha=0.5$.
+    
+    \item Across all simulations, a clear trade-off is visible between the stopping time and the error rate: achieving a lower error probability requires a higher $\mathbb{E}[N]$.
+\end{itemize}
+
+
+\section{Observations and Conclusions}
+This section summarizes the main findings from the different simulation tests and presents the final conclusions drawn from the results.
+
+\subsection{Key Observations}
+From the various experiments, several key patterns about the test's behavior were consistently observed:
+\begin{itemize}
+    \item \textbf{The Test is Truly Nonparametric:} A central observation is that the test works well on completely different types of data. It showed similar, predictable performance for both bell-shaped (Gaussian) and flat (Uniform) distributions. This confirms that the method is effective without needing any prior knowledge of the data's shape.
+
+    \item \textbf{Detection Speed Depends on Anomaly Difference:} The single biggest factor affecting performance was how different the anomalous data was from the normal data. When the anomaly's mean was shifted further away, making it more obvious, the test stopped much faster ($\mathbb{E}[N]$ dropped significantly). This was true for all data types and metrics used.
+
+    \item \textbf{A Faster Threshold Decay is More Efficient:} In all head-to-head comparisons, the threshold decay rate of $\alpha=1.0$ was more efficient than $\alpha=0.5$. It consistently led to a lower expected stopping time for the same level of accuracy, making it a better parameter choice in these scenarios.
+
+    \item \textbf{The Sequential Logic is Robust:} The core step-by-step logic of the test is solid and independent of the specific metric used. When the MMD metric was replaced with KL-Divergence, the overall behavior of the test remained the same—faster detection for more obvious anomalies and the same trade-offs between speed and accuracy.
+
+    \item \textbf{More Anomalies Make the Problem Harder:} The test for multiple anomalies showed that finding two anomalies is clearly more difficult than finding one. To achieve the same low error rate, the test needed more samples, which resulted in a higher expected stopping time.
+\end{itemize}
+
+\subsection{Conclusions}
+The simulation results lead to several important conclusions about the practical use and effectiveness of this anomaly detection method:
+\begin{itemize}
+    \item \textbf{The Method is Validated:} The implemented sequential test performs as theoretically promised in the reference paper \cite{sreenivasan2021sequential}. The results successfully show its ability to find anomalies in a universal setting and confirm the fundamental trade-off between detection speed and the probability of error.
+
+    \item \textbf{Sequential Testing is Highly Efficient:} A major conclusion is the sample efficiency of the sequential approach. For anomalies that are easy to spot, the test can stop very early, saving significant time and computational resources compared to a method that must always analyze a large, fixed-size batch of data. This makes it very practical for real-time monitoring.
+
+    \item \textbf{Performance is Tunable and Predictable:} The test is not a "black box." Its performance is directly tied to clear parameters. The results show that the test's speed is a function of the anomaly's distinctiveness and the choice of the threshold decay rate, $\alpha$. This provides a clear understanding of how to tune the test for a given application's needs.
+\end{itemize}
+
+\section{Sequential Detection Using Rank Stability}
+
+The detection of multiple anomalies presents a significant challenge, as calculating a reliable test statistic for a group of streams is complex. A potential simplification is a \textbf{rank-based sequential test}, which shifts the focus from the exact numerical anomaly scores to their relative ordering over time. The core intuition is that anomalous streams should \textbf{consistently rank higher} than typical streams. While the scores of normal streams might fluctuate randomly, the high ranks of the anomalous streams should show a persistent pattern.
+
+A possible implementation of this idea would be to rank all streams at each time step based on an anomaly score like MMD. The test would then stop not when a score crosses a threshold, but when the set of the top-ranked streams remains \textbf{stable for a certain number of consecutive steps}. This approach would be simpler and potentially more robust to random noise, as it relies on identifying a consistent pattern rather than a single high value.

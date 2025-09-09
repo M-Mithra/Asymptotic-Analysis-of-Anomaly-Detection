@@ -1,0 +1,78 @@
+\documentclass[12pt]{report} 
+
+%load any additional packages
+\usepackage{amssymb}
+\usepackage{graphicx}
+%\usepackage[number]{natbib}
+\usepackage{multicol}
+\usepackage{amsmath}
+\usepackage{hyperref}
+
+
+\setlength{\topmargin}{-1.0in}
+\setlength{\oddsidemargin}{0.33in}
+\setlength{\evensidemargin}{-0.08in}
+\setlength{\textheight}{8.5in}
+\setlength{\textwidth}{6.0in}
+
+% Set hyperlink colors
+\hypersetup{
+    colorlinks=true,       % Enable colored links
+    linkcolor=blue,        % Color of links in the document (e.g., table of contents, citations, etc.)
+    citecolor=blue,        % Color of citation links
+    filecolor=blue,        % Color of file links
+    urlcolor=blue,         % Color of URL links
+    linktoc=all            % This makes the entire entry in the table of contents clickable
+}
+
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proof}{Proof}
+
+\def\mytitle{Universal Anomaly Detection for Nonparametric Data}
+\def\myname{Medavarapu Atchutha Rama Murthy}
+\def\mydegree{B.Tech Interdisciplinary Dual Degree program 5Y}
+\def\mysupervisor{Dr. Jithin Ravi}
+\def\myrollno{21EC39016}
+\def\mydep{Electronics and Electrical Communication Engineering}
+\def\mydegreedate{28-08-2025}
+
+\begin{document}
+ \baselineskip=18pt plus1pt
+ \setcounter{secnumdepth}{3}
+ \setcounter{tocdepth}{3}
+ \pagenumbering{roman}
+ 
+ %Front Matter
+ \include{./FrontMatter/titlePage}
+ \include{./FrontMatter/certificate}
+ %\include{./FrontMatter/dedication}
+ %\include{./FrontMatter/acknowledgements}
+ \include{./FrontMatter/abstract}
+
+ \tableofcontents
+ \listoffigures
+ 
+ %Main material
+ \clearpage
+ \pagenumbering{arabic}
+ 
+ \include{./Chapters/chapter1}
+ \include{./Chapters/chapter2}
+ \include{./Chapters/chapter3}
+ \include{./Chapters/chapter4}
+
+%Bibliography
+\addcontentsline{toc}{chapter}{Bibliography}
+
+\nocite{*}  % Include all entries in the .bib file even if they are not cited in the text
+\bibliographystyle{IEEEtran}  % Choose the IEEE style for citations
+\bibliography{references}  % Ensure 'references.bib' is the correct path to your .bib file
+
+
+
+
+ 
+ 
+\end{document}

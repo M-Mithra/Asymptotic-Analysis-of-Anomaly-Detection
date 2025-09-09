@@ -1,0 +1,18 @@
+\chapter{Future Works}
+This study provides a foundation for several promising research directions to deepen the understanding and expand the capabilities of sequential anomaly detection.
+
+\begin{itemize}
+    \item \textbf{Theoretical Analysis of the Decay Rate ($\alpha$):} The simulations consistently showed that a decay rate of $\alpha=1.0$ was more efficient than $\alpha=0.5$ or $\alpha=2.0$. A formal theoretical investigation could explain this empirical result, analyzing the optimal trade-off between a threshold that decays quickly enough to be efficient but slowly enough to avoid errors from early-stage noise.
+
+    \item \textbf{Threshold Optimization and False Alarm Control:} The threshold parameters, $C$ and $\alpha$, were set manually. A significant area for future work is to develop methods for optimizing these parameters. This could involve creating a model to select the best threshold based on a user's desired false alarm rate, or even designing an adaptive threshold that adjusts itself to the data in real-time.
+
+    \item \textbf{Application to Discrete Distributions:} The experiments in this project focused on continuous data. A valuable next step would be to apply the MMD-based test to discrete data (data from a finite alphabet). This would allow for a direct performance comparison against classical methods like the Generalized Likelihood (GL) test, which was specifically designed for that type of data.
+
+    \item \textbf{Performance on High-Dimensional Data:} The current tests were on one-dimensional data. A crucial extension would be to evaluate the method on high-dimensional datasets. This is where the MMD metric is expected to shine, and it would test how well the approach scales to more complex, real-world problems.
+
+    \item \textbf{Development of the Rank-Based Test:} The proposed rank-based test offers a simpler, more intuitive way to handle multiple anomalies. A key future project is to fully implement and evaluate this method, comparing its detection power and computational cost against the more complex group-based statistics.
+
+    \item \textbf{Empirical Study of the GL Test Exponent:} The reference paper \cite{li2014universal} shows the GL test can achieve an optimal error exponent related to the Bhattacharyya distance. An interesting study would be to implement the fixed-sample GL test and empirically find the conditions under which it achieves this optimal performance, providing a valuable benchmark for the sequential method. 
+    
+    \item \textbf{Benchmarking Against Modern Methods:} To position this work in the broader field of machine learning, the NP-SEQ test could be benchmarked against other popular anomaly detection algorithms, like Isolation Forests or deep learning-based autoencoders, on a standard set of test data.
+\end{itemize}
