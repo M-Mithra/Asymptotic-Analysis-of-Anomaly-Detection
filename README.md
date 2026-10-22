@@ -1,6 +1,7 @@
 # Universal Outlier Hypothesis Testing — KL, MMD and GLT tests
 
-M-Tech project (MTP-1 and MTP-2), building on a summer internship.
+Master's Thesis Project (MTP-1 and MTP-2) by Medavarapu Atchutha Rama Murthy under the
+supervision of Prof. Jithin Ravi, Dept. E&ECE, IIT Kharagpur, building on a summer internship.
 
 **Problem.** M data streams are observed; all but one follow an unknown
 typical law π, one (the outlier) follows an unknown law μ. Neither law is
