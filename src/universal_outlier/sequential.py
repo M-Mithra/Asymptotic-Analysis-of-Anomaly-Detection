@@ -32,7 +32,7 @@ from itertools import combinations
 import numpy as np
 import pandas as pd
 
-from .backend import array_module
+from .backend import array_module, to_numpy
 
 # ---------------------------------------------------------------------------
 # samplers
@@ -79,6 +79,7 @@ class IncrementalMMD:
         self.n += 1
 
     def keep(self, idx):
+        idx = self.xp.asarray(idx)
         self.B = self.B[idx]
         self.D = self.D[idx]
 
@@ -139,7 +140,7 @@ class History:
         return self.buf[..., : self.n]
 
     def keep(self, idx):
-        self.buf = self.buf[idx]
+        self.buf = self.buf[self.xp.asarray(idx)]
 
 
 # ---------------------------------------------------------------------------
@@ -211,8 +212,8 @@ def run_np_seq(cfg: SeqConfig, alpha: float, C_values, trials: int, rng, xp=np,
                 continue
             cand, gam = _statistic(engine, cfg, xp)
             cross = gam[:, None] > C_dev[None, :] / n**alpha  # (alive, n_C)
-            cross = np.asarray(cross)
-            cand_h = np.asarray(cand)
+            cross = to_numpy(cross)
+            cand_h = to_numpy(cand)
             fresh = cross & ~stopped[alive]
             if fresh.any():
                 rows, cols = np.nonzero(fresh)
@@ -296,8 +297,8 @@ def run_np_seq_ua(cfg: SeqConfig, A: int, n_anomalies: int, C: float, trials: in
             if n < 2:
                 continue
             best, gam, subsets = subset_statistic(engine.pairwise(cfg.paired), A)
-            gam = np.asarray(gam)
-            best = np.asarray(best)
+            gam = to_numpy(gam)
+            best = to_numpy(best)
             hit = gam > C / np.sqrt(n)
             for r in np.flatnonzero(hit):
                 t = alive[r]
