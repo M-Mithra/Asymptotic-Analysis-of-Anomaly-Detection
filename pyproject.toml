@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "universal-outlier"
+version = "1.0.0"
+description = "Universal outlier hypothesis testing: KL, MMD and GLT tests, error exponents, and the sequential NP-SEQ test"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Mithra" }]
+dependencies = ["numpy>=1.24", "scipy>=1.10", "pandas>=2.0", "matplotlib>=3.7"]
+
+[project.optional-dependencies]
+gpu = ["cupy-cuda12x>=13"]
+dev = ["pytest>=7"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
