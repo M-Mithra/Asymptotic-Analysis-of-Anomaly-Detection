@@ -88,3 +88,17 @@ or near-identical copy · *dropped* = intentionally not ported (reason given).
 | `Metrics_comparison/temp*.py` | superseded | centroid / pooled / KL type statistics on a 3-letter alphabet |
 | `Metrics_comparison/scatter*.py` | superseded | first 3-D type-space scatter -> `decision_regions.py` |
 | `InternReport.pdf`, `Intern_Report.zip` | report | LaTeX source of the internship report |
+
+## Reports
+
+| File (in `~/Downloads`) | Status |
+|---|---|
+| `MTP1_Report.pdf` (27 Nov 2025, 67 pp.) | **FINAL** MTP-1 thesis |
+| `MTP2_report_final.pdf` / `MTP2_final_report.pdf` (19 Apr 2026, 72 pp.) | **FINAL** MTP-2 thesis; the two files have the same text, different PDF encoding |
+| `MTP2_Report_draft1*.pdf`, Turnitin files | drafts / plagiarism-check receipts |
+| `Intern_Summer/InternReport.pdf` | internship report (LaTeX source on `archive/original-code`) |
+
+Chapter 5 of the MTP-2 report reuses the MTP-1 results unchanged (same tables
+and maximin numbers). The figures behind both reports came from
+`results_for_report/` (fixed-sample tables, produced by `gpu1.py` runs) and
+`MTP2/.../alpha_conv6.py` (Fig. 6.1, noise floor).

@@ -81,11 +81,24 @@ high, never low.
 NP-SEQ stops at the first n with Γ_n > T_n = C / n^α (Sreenivasan & Bhashyam
 2021), Γ_n = max_i min_{j≠i} M_u²(i, j, n).
 
-**Noise floor.** If streams i and j are both typical, M_u²(i, j, n) is a
-*degenerate* U-statistic: E = 0 and n·M_u² → Σ_k λ_k (Z_k² − 1) in
-distribution (Gretton et al. 2012, Thm 12). The noise floor therefore decays
-as exactly 1/n. `results/alpha_study/noise_floor.png`: log-log slope
-−0.98 (unpaired) / −1.02 (paired), and the quantiles of n·M_u² are flat in n.
+**Noise floor (the MTP-2 derivation).** For a finite alphabet of size K,
+write each sample as a one-hot vector and w_l = e_{x_l} − e_{y_l}. Then the
+paired kernel is h(z_l, z_m) = w_lᵀ K w_m (K the Gram matrix) and
+
+    M_u² = n/(n−1) · w̄ᵀ K w̄ − 1/(n(n−1)) · Σ_l w_lᵀ K w_l.
+
+Under p = q, E[w_l] = 0 and Cov(w_l) = Σ_w = 2(D_p − p pᵀ), which has rank
+K − 1. By the multivariate CLT √n w̄ → g ~ N(0, Σ_w), and by the law of large
+numbers the last average tends to E[wᵀKw], so
+
+    n · M_u²  →  gᵀ K g − E[wᵀ K w]     (a centred generalised chi-square, K − 1 terms).
+
+Hence n·M_u² = O_p(1) and the noise floor decays as exactly 1/n. The same
+holds for continuous data, where M_u² is a degenerate U-statistic and
+n·M_u² → Σ_k λ_k (Z_k² − 1) (Gretton et al. 2012, Thm 12); this is what
+justifies checking the rate on Gaussian streams.
+`results/alpha_study/noise_floor.png`: log-log slope −0.98 (unpaired) /
+−1.02 (paired), R² = 0.999, and the quantiles of n·M_u² are flat in n.
 
 **Signal.** For the anomalous stream Γ_n → MMD²(p, q) > 0, so the test stops
 near N ≈ (C / MMD²)^{1/α}. For α = 1 this is Theorem 3 of the paper
@@ -105,7 +118,9 @@ the threshold before the signal does.
   gives E[N] linear in log(1/P_err) with the same first-order constant.
 
 So α = 1 is the natural, scale-matched choice and α < 1 is strictly worse;
-α > 1 matches α = 1 to first order. The simulations agree: α ∈ [0.75, 2]
+α > 1 matches α = 1 to first order. The noise-floor result shows that α = 1
+is the rate at which T_n stays proportional to the null fluctuations; it does
+not by itself prove that α = 1 minimises E[N] for a given error. The simulations agree: α ∈ [0.75, 2]
 give nearly the same curves over the range 5000 trials can resolve, while
 α = 0.5 is clearly worse. The paper's own Fig. 1a shows α = 2 only slightly
 worse than α = 1.
