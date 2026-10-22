@@ -35,7 +35,7 @@ All numbers and figures are produced by the scripts in `experiments/`
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-pytest                                     # 47 tests, ~5 s
+pytest                                     # 48 tests, ~5 s
 
 python experiments/error_exponents.py --preset quick        # ~1 min
 python experiments/theory_exponents.py --sim quick          # ~5 min (exact P_e part)
