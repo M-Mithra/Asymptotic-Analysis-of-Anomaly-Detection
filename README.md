@@ -1,4 +1,6 @@
-# Universal Outlier Hypothesis Testing — KL, MMD and GLT tests
+# Asymptotic Analysis of Anomaly Detection
+
+Universal outlier hypothesis testing with KL, MMD and GLT tests: error exponents, decision regions, and the sequential NP-SEQ test.
 
 Master's Thesis Project (MTP-1 and MTP-2) by Medavarapu Atchutha Rama Murthy under the
 supervision of Prof. Jithin Ravi, Dept. E&ECE, IIT Kharagpur, building on a summer internship.
