@@ -30,6 +30,16 @@ the issues below. Each item says what was wrong, its effect, and the fix.
    regions. **Fix:** regions drawn exactly as label images. (Also: plot 4 of
    `glt_frames_code.py` drew its tick labels on the plot-3 axes.)
 
+   The "thick ambiguous shell" of MMD in the cube plots is a grid effect, not
+   a property of MMD. For M = 3 the MMD rule is the closest-pair rule, whose
+   tie sets are planes (equally spaced triples such as t1 − t2 = t2 − t3);
+   a regular grid lands exactly on such planes very often, while the curved
+   GLT / KL tie sets almost never hit a grid point. The ambiguous fraction of
+   MMD halves with each halving of the grid step (6.5 %, 3.5 %, 1.5 %, 0.7 %
+   at steps 0.05, 0.025, 0.01, 0.005), and among 2·10⁶ random off-grid points
+   no rule has a single tie. All three rules have measure-zero tie sets; in
+   the P_e simulations every rule must name an outlier anyway.
+
 5. **Time-outs counted as errors in the α trade-off.** `alpha_conv7.py`
    capped each run at 300 steps and counted unfinished runs as errors, which
    bent the α = 0.5 curve; zero-error points were plotted at the 1/trials floor

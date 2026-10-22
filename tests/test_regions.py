@@ -22,3 +22,14 @@ def test_mmd_and_tvd_centroid_same_partition():
     a = classify_cube("mmd_avg", step=0.05)
     b = classify_cube("tvd_centroid", step=0.05)
     assert disagreement(a, b) == 0.0
+
+
+def test_ties_have_zero_volume():
+    """Ambiguity is a measure-zero set for every rule: random points never tie,
+    and the tie fraction on a grid shrinks with the step (a grid artefact)."""
+    t = np.random.default_rng(0).uniform(size=(200_000, 3))
+    for rule in ("mmd_avg", "glt", "kl_avg"):
+        assert (classify(rule, t) == AMBIGUOUS).sum() == 0
+    coarse = (classify_cube("mmd_avg", 0.05).label == AMBIGUOUS).mean()
+    fine = (classify_cube("mmd_avg", 0.025).label == AMBIGUOUS).mean()
+    assert fine < 0.7 * coarse
